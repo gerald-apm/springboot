@@ -1,8 +1,6 @@
 package com.geraldapm.departmentservice.controller;
 
 import java.util.List;
-
-import org.apache.hc.core5.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.geraldapm.departmentservice.client.EmployeeClient;
 import com.geraldapm.departmentservice.dto.BaseResponse;
 import com.geraldapm.departmentservice.model.Department;
 import com.geraldapm.departmentservice.repository.DepartmentRepository;
@@ -26,6 +25,9 @@ public class DepartmentController {
 
     @Autowired
     private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private EmployeeClient employeeClient;
 
     @PostMapping
     public ResponseEntity<BaseResponse<Department>> add(@RequestBody Department department) {
@@ -47,4 +49,14 @@ public class DepartmentController {
         LOGGER.info("Department find by id={}", id);
         return ResponseEntity.ok(new BaseResponse<>(departmentResponse));
     }
+
+    @GetMapping("/with-employees")
+    public ResponseEntity<BaseResponse<List<Department>>> findAllWithEmployees() {
+        List<Department> departmentResponse = departmentRepository.findAll();
+        LOGGER.info("Department find all with employees inside");
+        departmentResponse.forEach(department -> department.setEmployees(
+                employeeClient.findByDepartmentId(department.getId()).getBody()));
+        return ResponseEntity.ok(new BaseResponse<>(departmentResponse));
+    }
+
 }

@@ -12,6 +12,11 @@ public class BaseResponse<T> {
         this.data = data;
     }
 
+    public BaseResponse(T data, String message) {
+        this.data = data;
+        this.message = message;
+    }
+
     public BaseResponse(Boolean success, String message) {
         this.success = success;
         this.message = message;
